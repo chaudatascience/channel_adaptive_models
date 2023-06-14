@@ -1,0 +1,28 @@
+defaults:
+  - train: ~
+  - model: ~
+  - scheduler: ~
+  - optimizer: ~
+  - dataset: ~
+  - data_chunk: ~
+  - logging: ~
+  - hardware: ~
+  - eval: ~
+  - attn_pooling: ~
+  - _self_
+
+tag: ~
+
+hydra:
+  sweeper:
+    params:
+      train: random_instance
+      data_chunk: morphem70k
+      model: convnext_base
+      scheduler: cosine
+      optimizer: adamw
+      dataset: morphem70k_v2
+      logging: wandb
+      hardware: default
+      eval: default
+      attn_pooling: none

@@ -1,0 +1,28 @@
+{
+    "workbench.colorCustomizations": {
+        "titleBar.activeBackground": "#261ac8"
+    },
+    "files.watcherExclude": {
+        "**/checkpoints/**": true,
+        "**/data/**": true,
+        "**/multirun/**": true,
+        "**/wandb/**": true,
+        "**/logs/**": true,    
+        "**/snapshots/**": true,   
+        "../MorphEm/**": true 
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/__pycache__": true,
+        "**/**/__pycache__": true,
+        "**/wandb/**": true,
+        "**/multirun/**": true,
+        "**/checkpoints/**": true,
+        "**/snapshots/**": true,
+    },
+}

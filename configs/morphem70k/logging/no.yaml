@@ -1,0 +1,7 @@
+wandb:
+  use_wandb: False
+  log_freq: 10000
+  num_images_to_log: 0 # set <= 0 to disable this
+  project_name: ~  # set to ~ for auto setting
+use_py_log: False
+scc_jobid: ~

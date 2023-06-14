@@ -1,0 +1,12 @@
+name: clip_based_model
+pretrained: True
+pretrained_model_name: RN50  ## convnext_tiny.fb_in22k_ft_in1k, convnext_small.in12k_ft_in1k
+in_dim: ~  # autofill later if None
+num_classes: ~ # autofill later if None
+pooling: "avg"
+temperature: 0.11111
+unfreeze_last_n_layers: -1
+unfreeze_first_layer: True
+first_layer: reinit_as_random
+reset_last_n_unfrozen_layers: False
+use_auto_rgn: False

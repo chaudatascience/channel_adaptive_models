@@ -1,0 +1,11 @@
+name: depthwiseresnet18
+init_weights: True
+in_dim: ~  # autofill later if None
+num_classes: ~ # autofill later if None
+in_channel_names: [red, green, blue]
+duplicate: False # choice(True, False)
+separate_norm: FILL_LATER  # choice(True, False)
+norm_type: FILL_LATER  # choice(batch_norm, layer_norm, instance_norm)
+kernels_per_channel: FILL_LATER
+pooling_channel_type: FILL_LATER  # choice(sum, avg, weighted_sum_random, weighted_sum_one, weighted_sum_random_no_softmax,  weighted_sum_one_no_softmax, attention)
+image_h_w: [32, 32]  ## used with norm_type="layer_norm"

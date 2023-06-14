@@ -1,0 +1,13 @@
+name: dino_base
+pretrained: True
+pretrained_model_name: dinov2_vits14  ## https://github.com/facebookresearch/dinov2
+in_dim: ~  # autofill later if None
+num_classes: ~ # autofill later if None
+pooling: "avg"
+temperature: 0.11111
+learnable_temp: False
+unfreeze_last_n_layers: -1
+unfreeze_first_layer: True
+first_layer: reinit_as_random
+reset_last_n_unfrozen_layers: False
+use_auto_rgn: False

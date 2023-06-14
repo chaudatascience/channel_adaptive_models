@@ -1,0 +1,10 @@
+max_num_channels: FILL_LATER_IN_CODE
+dim: FILL_LATER_IN_CODE
+depth: 1
+dim_head: 16
+heads: 4
+mlp_dim: 4
+dropout: 0.0
+use_cls_token: False
+use_channel_tokens: False
+init_channel_tokens: ~  # only used when use_channel_tokens=True

@@ -1,0 +1,18 @@
+name: cosine
+convert_to_batch: False
+params:
+  t_initial: FILL_LATER
+  lr_min: 1.0e-6
+  cycle_mul: 1.0
+  cycle_decay: 0.5
+  cycle_limit: 1
+  warmup_t: 3
+  warmup_lr_init: 1.0e-5
+  warmup_prefix: False
+  t_in_epochs: True
+  noise_range_t: ~
+  noise_pct: 0.67
+  noise_std: 1.0
+  noise_seed: 42
+  k_decay: 1.0
+  initialize: True

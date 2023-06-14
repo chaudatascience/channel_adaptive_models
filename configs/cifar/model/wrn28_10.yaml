@@ -1,0 +1,4 @@
+name: wrn28_10
+init_weights: True
+in_dim: ~  # autofill later if None
+num_classes: ~ # autofill later if None

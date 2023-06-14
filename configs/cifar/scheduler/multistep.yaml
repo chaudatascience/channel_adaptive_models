@@ -1,0 +1,14 @@
+name: multistep
+convert_to_batch: True
+params:
+  decay_t: [30, 60, 80]
+  decay_rate: 0.2
+  warmup_t: 1
+  warmup_lr_init: 0.
+  warmup_prefix: False
+  t_in_epochs: False
+  noise_range_t: ~
+  noise_pct: 0.67
+  noise_std: 1.0
+  noise_seed: 42
+  initialize: True

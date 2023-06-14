@@ -1,0 +1,10 @@
+name: clip_based_model
+pretrained: True
+pretrained_model_name: ViT-B/16  ## convnext_tiny.fb_in22k_ft_in1k, convnext_small.in12k_ft_in1k
+in_dim: ~  # autofill later if None
+num_classes: ~ # autofill later if None
+pooling: "avg"
+temperature: 0.11111
+first_layer: reinit_as_random
+unfreeze_vit_layers: ~
+use_auto_rgn: False

@@ -1,0 +1,29 @@
+defaults:
+  - train: ~
+  - model: ~
+  - scheduler: ~
+  - optimizer: ~
+  - dataset: ~
+  - data_chunk: ~
+  - logging: ~
+  - hardware: ~
+  - eval: ~
+  - _self_
+
+tag: ~
+
+hydra:
+  sweeper:
+    params:
+      train: random_instance
+      data_chunk: full
+      model: sliceparamresnet18
+      scheduler: multistep
+      optimizer: sgd
+      dataset: glob(*)
+      logging: wandb
+      hardware: default
+      eval: default
+
+# https://hydra.cc/docs/plugins/joblib_launcher/
+# add hydra/launcher=joblib to your command line for parallel execution

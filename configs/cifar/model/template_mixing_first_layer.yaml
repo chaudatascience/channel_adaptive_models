@@ -1,0 +1,10 @@
+name: templatemixingfirstlayerresnet18
+init_weights: True
+in_dim: ~  # autofill later if None
+num_classes: ~ # autofill later if None
+in_channel_names: [red, green, blue]
+separate_norm: FILL_LATER  # choice(True, False)
+norm_type: FILL_LATER  # choice(batch_norm, layer_norm, instance_norm)
+image_h_w: [32, 32]  ## used with norm_type="layer_norm"
+num_templates: FILL_LATER
+separate_coef: True

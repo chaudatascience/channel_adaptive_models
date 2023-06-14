@@ -1,0 +1,16 @@
+chunks:
+  - Allen:
+    - nucleus
+    - membrane
+    - protein
+  - HPA:
+    - microtubules
+    - protein
+    - nucleus
+    - er
+  - CP:
+    - nucleus
+    - er
+    - rna
+    - golgi
+    - mito

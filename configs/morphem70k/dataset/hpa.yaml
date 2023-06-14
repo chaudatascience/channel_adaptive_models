@@ -1,0 +1,4 @@
+name: HPA
+img_size: 224 # 512
+root_dir: /projectnb/morphem/data_70k/ver2/morphem_70k_version2
+file_name: morphem70k_v2.csv 
