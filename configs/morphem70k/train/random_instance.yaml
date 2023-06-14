@@ -1,4 +1,4 @@
-batch_strategy: random_instance # no_strategy, interleave, random, random_instance
+batch_strategy: random_instance 
 resume_train: False
 resume_model: ~  # model_5.pt  # used when `resume_train` is True
 use_amp: False   #  mixed precision training

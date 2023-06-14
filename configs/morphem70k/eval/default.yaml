@@ -5,13 +5,11 @@ root_dir: /projectnb/morphem/data_70k/ver2/morphem_70k_version2/
 meta_csv_file: FILL_LATER
 classifiers:
   - knn
-  - sgd
 classifier: PLACE_HOLDER
 feature_file: features.npy
 use_gpu: True
 knn_metric: PLACE_HOLDER
 knn_metrics:
-  - l2 
   - cosine
 clean_up: False
 umap: True
