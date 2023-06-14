@@ -21,6 +21,8 @@ If you want to use Wandb to keep track of experiments, add your Wandb key to `.e
 
 `echo WANDB_API_KEY=your_wandb_key >> .env`
 
+Otherwise, change `use_wandb` to False in configs/morphem70k/logging/wandb.yaml to disable Wandb.
+
 # Dataset
 The dataset can be found at https://doi.org/10.5281/zenodo.7988357
 
@@ -33,7 +35,7 @@ To submit a job, you need to specify the config file:
 ```
 -m: multi-run mode
 
--cp: confile folder, all config files are in `configs/morphem70k`
+-cp: config folder, all config files are in `configs/morphem70k`
 
 -cn: config file name (without the .yaml extension)
 ```

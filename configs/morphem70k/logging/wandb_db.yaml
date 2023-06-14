@@ -1,6 +1,0 @@
-wandb:
-  use_wandb: True
-  log_freq: 0
-  num_images_to_log: 0 # set <= 0 to disable this
-  project_name: multi_channels_DEBUG  # set to ~ for auto setting
-use_py_log: False
