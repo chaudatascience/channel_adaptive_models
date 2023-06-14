@@ -21,7 +21,11 @@ If you want to use Wandb to keep track of experiments, add your Wandb key to `.e
 
 `echo WANDB_API_KEY=your_wandb_key >> .env`
 
-# Submitting jobs
+# Dataset
+The dataset can be found at https://doi.org/10.5281/zenodo.7988357
+
+
+# Training
 
 In this project, we use [Hydra](https://hydra.cc/) to manage configurations.
 To submit a job, you need to specify the config file:
