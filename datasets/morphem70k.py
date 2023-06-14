@@ -27,7 +27,9 @@ class SingleCellDataset(Dataset):
     ):
         """
         @param csv_path: Path to the csv file with metadata.
-             i.e., "metadata/morphem70k_v2.csv"
+             e.g., "metadata/morphem70k_v2.csv".
+        You should copy this file to the dataset folder to avoid modifying other config.
+
         Note: Allen was renamed to WTC-11 in the paper.
         @param chunk: "Allen", "HPA", "CP", or "morphem70k"to use all 3 chunks
         @param root_dir: root_dir: Directory with all the images.
