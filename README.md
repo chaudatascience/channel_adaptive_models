@@ -51,4 +51,7 @@ Here is an example to submit a job to train a SliceParam model:
 python main.py -m -cp configs/morphem70k -cn morphem70k_cfg model=sliceparam tag=slice ++optimizer.params.lr=0.00001 ++model.first_layer=pretrained_pad_dups ++model.learnable_temp=True ++model.temperature=0.07
 ```
 
+# Checkpoints
+
+Our pre-trained models can be found at: https://drive.google.com/drive/folders/1_xVgzfdc6H9ar4T5bd1jTjNkrpTwkSlL?usp=drive_link
 
