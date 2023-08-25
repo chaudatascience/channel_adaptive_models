@@ -55,3 +55,4 @@ python main.py -m -cp configs/morphem70k -cn morphem70k_cfg model=sliceparam tag
 
 Our pre-trained models can be found at: https://drive.google.com/drive/folders/1_xVgzfdc6H9ar4T5bd1jTjNkrpTwkSlL?usp=drive_link
 
+A quick example to use the checkpoints for evaluation is provided in [evaluate.ipynb](https://github.com/chaudatascience/channel_adaptive_models/blob/main/evaluate.ipynb)

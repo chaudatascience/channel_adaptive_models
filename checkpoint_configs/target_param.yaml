@@ -1,0 +1,121 @@
+train:
+  batch_strategy: random_instance
+  resume_train: false
+  resume_model: target_param.pt
+  use_amp: false
+  checkpoints: ../STORE/adaptive_interface/checkpoints
+  save_model: no_save
+  clip_grad_norm: null
+  batch_size: 128
+  num_epochs: 15
+  verbose_batches: 50
+  seed: 505429
+  debug: false
+  adaptive_interface_epochs: 0
+  adaptive_interface_lr: null
+  swa: false
+  swad: false
+  swa_lr: 0.05
+  swa_start: 5
+  miro: false
+  miro_lr_mult: 10.0
+  miro_ld: 0.01
+  tps_prob: 0.0
+model:
+  name: shared_convnext
+  pretrained: true
+  pretrained_model_name: convnext_tiny.fb_in22k
+  in_dim: null
+  num_classes: null
+  pooling: avg
+  temperature: 0.07
+  learnable_temp: true
+  unfreeze_last_n_layers: -1
+  unfreeze_first_layer: true
+  first_layer: pretrained_pad_avg
+  reset_last_n_unfrozen_layers: false
+  use_auto_rgn: false
+scheduler:
+  name: cosine
+  convert_to_batch: false
+  params:
+    t_initial: FILL_LATER
+    lr_min: 1.0e-06
+    cycle_mul: 1.0
+    cycle_decay: 0.5
+    cycle_limit: 1
+    warmup_t: 3
+    warmup_lr_init: 1.0e-05
+    warmup_prefix: false
+    t_in_epochs: true
+    noise_range_t: null
+    noise_pct: 0.67
+    noise_std: 1.0
+    noise_seed: 42
+    k_decay: 1.0
+    initialize: true
+optimizer:
+  name: adamw
+  params:
+    lr: 0.0002
+    betas:
+    - 0.9
+    - 0.999
+    eps: 1.0e-08
+    weight_decay: 5.0e-05
+    amsgrad: false
+dataset:
+  name: morphem70k
+  img_size: 224
+  root_dir: /projectnb/morphem/data_70k/ver2/morphem_70k_version2
+  file_name: morphem70k_v2.csv
+data_chunk:
+  chunks:
+  - Allen:
+    - nucleus
+    - membrane
+    - protein
+  - HPA:
+    - microtubules
+    - protein
+    - nucleus
+    - er
+  - CP:
+    - nucleus
+    - er
+    - rna
+    - golgi
+    - mito
+logging:
+  wandb:
+    use_wandb: false
+    log_freq: 10000
+    num_images_to_log: 0
+    project_name: null
+  use_py_log: false
+  scc_jobid: null
+hardware:
+  num_workers: 3
+  device: cuda
+  multi_gpus: null
+eval:
+  batch_size: null
+  dest_dir: ../STORE/adaptive_interface/snapshots/{FOLDER_NAME}/results
+  feature_dir: ../STORE/adaptive_interface/snapshots/{FOLDER_NAME}/features
+  root_dir: /projectnb/morphem/data_70k/ver2/morphem_70k_version2/
+  meta_csv_file: FILL_LATER
+  classifiers:
+  - knn
+  - sgd
+  classifier: PLACE_HOLDER
+  feature_file: features.npy
+  use_gpu: true
+  knn_metric: PLACE_HOLDER
+  knn_metrics:
+  - l2
+  - cosine
+  clean_up: false
+  umap: true
+  only_eval_first_and_last: false
+attn_pooling: {}
+tag: shared
