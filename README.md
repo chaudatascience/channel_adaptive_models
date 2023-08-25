@@ -28,7 +28,7 @@ The dataset can be found at https://doi.org/10.5281/zenodo.7988357
 
 First, you need to download the dataset, and modify the folder path in `configs/morphem70k/dataset/morphem70k_v2.yaml` and `configs/morphem70k/eval/default.yaml`.
 
-Copy `medadata/morphem70k_v2.yaml` file to the dataset folder that you have just downloaded. This particular file is simply a merged version of the metadata files (`enriched_meta.csv`) from three sub-datasets within your dataset folder. It will be utilized by `datasets/morphem70k.py` to load of the dataset.
+Copy `medadata/morphem70k_v2.csv` file to the dataset folder that you have just downloaded. This particular file is simply a merged version of the metadata files (`enriched_meta.csv`) from three sub-datasets within your dataset folder. It will be utilized by `datasets/morphem70k.py` to load of the dataset.
 
 
 # Training
