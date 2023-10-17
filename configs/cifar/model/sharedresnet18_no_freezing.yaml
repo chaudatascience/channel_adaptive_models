@@ -1,6 +1,0 @@
-name: sharedresnet18
-init_weights: True
-in_dim: ~  # NOT used for shared resnet
-num_classes: ~ # autofill later if None
-freeze_other: False
-norm_type: batch_norm  # one of ["batch_norm", "layer_norm", "instance_norm"]

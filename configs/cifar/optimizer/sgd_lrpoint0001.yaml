@@ -1,7 +1,0 @@
-name: sgd
-params:
-  lr: 0.0001
-  dampening: 0
-  momentum: 0.9
-  weight_decay: 5.0e-4
-  nesterov: False

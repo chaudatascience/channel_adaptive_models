@@ -1,9 +1,0 @@
-chunks:
-  - red:
-    - red
-  - red_green:
-    - red
-    - green
-  - green_blue:
-    - green
-    - blue

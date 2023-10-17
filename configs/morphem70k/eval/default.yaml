@@ -1,7 +1,7 @@
 batch_size: ~  ## None to auto set
-dest_dir: ../STORE/adaptive_interface/snapshots/{FOLDER_NAME}/results
-feature_dir: ../STORE/adaptive_interface/snapshots/{FOLDER_NAME}/features
-root_dir: /projectnb/morphem/data_70k/ver2/morphem_70k_version2/
+dest_dir: snapshots/{FOLDER_NAME}/results
+feature_dir: snapshots/{FOLDER_NAME}/features
+root_dir: chammi_dataset
 meta_csv_file: FILL_LATER
 classifiers:
   - knn

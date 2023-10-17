@@ -1,5 +1,5 @@
 wandb:
-  use_wandb: True
+  use_wandb: False
   log_freq: 5000
   num_images_to_log: 0 # set <= 0 to disable this
   log_imgs_every_n_epochs: 0  # used when `num_images_to_log` > 0
