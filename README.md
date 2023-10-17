@@ -1,7 +1,4 @@
- in microscopy imaging
-
-
-A Pytorch implementation for Channel-adaptive models in our paper. If you find ourpaper useful, please consider citing:
+A Pytorch implementation for channel-adaptive models in our paper. If you find our paper useful, please consider citing it as:
 
 ```
 @InProceedings{ChenCHAMMI2023,
@@ -34,13 +31,13 @@ or, if you are using conda, you can create a new environment by:
 The dataset can be found at https://doi.org/10.5281/zenodo.7988357
 
 First, you need to download the dataset. 
-Suppose the dataset folder is `chammi_dataset` and it is located inside the project folder.
+Suppose the dataset folder is named `chammi_dataset`, and it is located inside the project folder.
 
 You need to modify the folder path in `configs/morphem70k/dataset/morphem70k_v2.yaml` and `configs/morphem70k/eval/default.yaml`. 
-Specifically, change `root_dir` to `chammi_dataset` in both files.
+Specifically, set `root_dir` to `chammi_dataset` in both files.
 
 
-Copy `medadata/morphem70k_v2.csv` file to the dataset folder that you have just downloaded, which can be done by 
+Then, copy `medadata/morphem70k_v2.csv` file to the `chammi_dataset` folder that you have just downloaded. You can use the following command: 
 
 ```
 cp metadata/morphem70k_v2.csv chammi_dataset
