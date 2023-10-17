@@ -64,6 +64,10 @@ class Train:
     miro_lr_mult: Optional[float] = 10.0
     miro_ld: Optional[float] = 0.01  # 0.1
     
+    ## TPS Transform (Augmentation)
+    tps_prob: Optional[float] = 0.0
+    ssl: Optional[bool] = False
+    ssl_lambda: Optional[float] = 0.0
 
 @dataclass
 class Eval:

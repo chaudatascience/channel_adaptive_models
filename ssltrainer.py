@@ -1,75 +1,37 @@
 from __future__ import annotations
 
 import collections
-import os
-import time
-from copy import deepcopy
 from os.path import join as os_join
-from typing import Optional, Dict, Tuple
 
-import numpy as np
 import torch
-from torch.cuda.amp import GradScaler, autocast
-from einops import repeat
-from omegaconf import OmegaConf, ListConfig
-from torch import nn, Tensor
 import torch.nn.functional as F
-from sklearn.metrics import f1_score
 
-import models
 import utils
-from morphem.benchmark import run_benchmark
-from helper_classes.best_result import BestResult
-from config import MyConfig, DataChunk
+from config import MyConfig
 from datasets.dataset_utils import (
     get_channel,
-    get_in_dim,
     get_train_val_test_loaders,
     get_classes,
     make_random_instance_train_loader,
 )
-from helper_classes.channel_pooling_type import ChannelPoolingType
 from helper_classes.datasplit import DataSplit
 from models import model_utils
-from models.depthwise_convnext import DepthwiseConvNeXt
-from models.hypernet_convnext import HyperConvNeXt
-from models.hypernetwork_resnet import HyperNetworkResNet
-from models.loss_fn import proxy_loss
-from models.shared_convnext import SharedConvNeXt
-from models.shared_resnet import SharedResNet
-from lr_schedulers import create_my_scheduler
-from models.slice_param_convnext import SliceParamConvNeXt
-from models.slice_param_resnet import SliceParamResNet
-from models.depthwise_resnet import DepthWiseResNet
-from models.depthwise_convnext_miro import DepthwiseConvNeXtMIRO
-from models.template_mixing_convnext import TemplateMixingConvNeXt
-from models.template_convnextv2 import TemplateMixingConvNeXtV2
-from models.convnext_base_miro import convnext_base_miro
-from models.convnext_shared_miro import ConvNeXtSharedMIRO
-from models.hypernet_convnext_miro import HyperConvNeXtMIRO
-from models.template_mixing_first_layer_resnet import TemplateMixingFirstLayerResNet
-from models.slice_param_convnext_miro import SliceParamConvNeXtMIRO
-from models.template_convnextv2_miro import TemplateMixingConvNeXtV2MIRO
+
 
 from optimizers import make_my_optimizer
 from utils import AverageMeter, exists
-from custom_log import MyLogging
-from models.model_utils import get_shapes, MeanEncoder, VarianceEncoder
-from torch.optim.swa_utils import AveragedModel, SWALR
 from trainer import Trainer
 
-#SimCLR from https://github.com/sthalles/SimCLR/blob/master
+# SimCLR from https://github.com/sthalles/SimCLR/blob/master
+
 
 class SimCLR(object):
-
     def __init__(self, cfg, device, **kwargs):
         self.cfg = cfg
         self.device = device
 
-
     def info_nce_loss(self, features):
-
-        labels = torch.cat([torch.arange(features.size()[0]/2) for i in range(2)], dim=0)
+        labels = torch.cat([torch.arange(features.size()[0] / 2) for i in range(2)], dim=0)
         labels = (labels.unsqueeze(0) == labels.unsqueeze(1)).float()
         labels = labels.to(self.device)
 
@@ -79,7 +41,7 @@ class SimCLR(object):
         # assert similarity_matrix.shape == (
         #     self.args.n_views * self.args.batch_size, self.args.n_views * self.args.batch_size)
         # assert similarity_matrix.shape == labels.shape
-                # discard the main diagonal from both: labels and similarities matrix
+        # discard the main diagonal from both: labels and similarities matrix
         mask = torch.eye(labels.shape[0], dtype=torch.bool).to(self.device)
         labels = labels[~mask].view(labels.shape[0], -1)
         similarity_matrix = similarity_matrix[~mask].view(similarity_matrix.shape[0], -1)
@@ -94,42 +56,17 @@ class SimCLR(object):
         logits = torch.cat([positives, negatives], dim=1)
         labels = torch.zeros(logits.shape[0], dtype=torch.long).to(self.device)
 
-        logits = logits / 0.07 #set temperature as 0.07
+        logits = logits / 0.07  # set temperature as 0.07
         return logits, labels
-
-    # def train(self):
-
-    #     scaler = GradScaler(enabled=True)
-
-    #     self.logger.info(f"Start SimCLR training.")
-    #     self.logger..info(f"Training with gpu: {self.device}.")
-
-    #     for epoch_counter in range(self.cfg.train.num_epochs):
-    #         for images, _ in tqdm(train_loader):
-    #             images = torch.cat(images, dim=0)
-
-    #             images = images.to(self.device)
-
-    #             with autocast(enabled=True):
-    #                 features = self.model(images)
-    #                 logits, labels = self.info_nce_loss(features)
-    #                 loss = self.criterion(logits, labels)
-
-    #             self.optimizer.zero_grad()
-
-    #             scaler.scale(loss).backward()
-
-    #             scaler.step(self.optimizer)
-    #             scaler.update()
 
 
 class SSLTrainer(Trainer):
     def __init__(self, cfg: MyConfig) -> None:
         super().__init__(cfg)
-        
+
         self.simclr = SimCLR(cfg, self.device)
         self.criterion = torch.nn.CrossEntropyLoss().to(self.device)
-    
+
     def train(self):
         epoch_timer = utils.Time1Event()
         if not self.cfg.train.debug:
@@ -259,12 +196,10 @@ class SSLTrainer(Trainer):
         if bid % verbose != 0:
             self._update_batch_log(epoch=epoch, bid=bid, lr=self.current_lr, loss_meter=loss_meter)
         if self.cfg.train.swa and not self.cfg.train.swad and epoch > self.cfg.train.swa_start:
-            print("SWA AVERAGE MODEL!!!!!!!!!!!!!!!!!!!!")
             self.swa_model.update_parameters(self.model)
             self.swa_scheduler.step()
         # utils.gpu_mem_report()
         return None
-
 
     def train_one_batch(self, batch, num_updates, epoch):
         batch = utils.move_to_cuda(batch, self.device)
@@ -300,7 +235,9 @@ class SSLTrainer(Trainer):
                         scale = self.model.scale
                     logits, labels = self.simclr.info_nce_loss(output)
                     # loss = self.criterion(logits, labels)
-                    loss = self.cfg.train.ssl_lambda* self.criterion(logits, labels) + (1 - self.cfg.train.ssl_lambda)*torch.nn.CrossEntropyLoss()(output, y)
+                    loss = self.cfg.train.ssl_lambda * self.criterion(logits, labels) + (
+                        1 - self.cfg.train.ssl_lambda
+                    ) * torch.nn.CrossEntropyLoss()(output, y)
                 else:
                     raise NotImplementedError(f"dataset {self.cfg.dataset.name} not implemented")
 
@@ -339,7 +276,6 @@ class SSLTrainer(Trainer):
         }  ## loss on training
 
         return loss_dict
-
 
     def _build_dataset(self):
         data_cfg = self.cfg.dataset
@@ -396,8 +332,6 @@ class SSLTrainer(Trainer):
             dataset, file_name
         )  ## list of class names
 
-
-
     def _build_optimizer(self):
         name = self.cfg.optimizer.name
         optimizer_cfg = dict(**self.cfg.optimizer.params)
@@ -415,17 +349,8 @@ class SSLTrainer(Trainer):
         optimizer = make_my_optimizer(name, param_list, optimizer_cfg)
         return optimizer
 
-
-
     def _finish_training(self):
         best_res = self.best_res_all_chunks[DataSplit.TEST]
-
-        # ## Update best results
-        # best_epoch_path = os_join(self.checkpoints, f"model_{best_res.epoch}.pt")
-        # os.system(f"cp {best_epoch_path} {self.best_model_path}")
-        # print(f"copied the best model to {self.best_model_path}...")
-
-        ## Log the best model
 
         self.logger.info(best_res.to_dict(), use_wandb=False, sep="| ", padding_space=True)
         h = w = int(self.cfg.dataset.img_size)
