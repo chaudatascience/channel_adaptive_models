@@ -258,7 +258,6 @@ def get_train_val_test_loaders(
     root_dir: str,
     file_name: str,
     tps_prob: float,
-    ssl_flag: bool,
 ) -> Tuple[DataLoader, DataLoader | None, DataLoader]:
     train_loader, val_loader, test_loader = None, None, None
 
