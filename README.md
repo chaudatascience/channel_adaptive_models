@@ -70,7 +70,7 @@ Configs for the checkpoints are stored in [`checkpoint_configs`](https://github.
 A quick example to use the checkpoints for evaluation is provided in [evaluate.ipynb](https://github.com/chaudatascience/channel_adaptive_models/blob/main/evaluate.ipynb)
 
 
-
+---
 If you find our paper useful, please consider citing it as:
 
 ```

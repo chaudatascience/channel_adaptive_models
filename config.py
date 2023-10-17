@@ -63,6 +63,7 @@ class Train:
     miro: Optional[bool] = False
     miro_lr_mult: Optional[float] = 10.0
     miro_ld: Optional[float] = 0.01  # 0.1
+    
 
 @dataclass
 class Eval:
@@ -209,4 +210,3 @@ class MyConfig:
     hardware: Hardware
     tag: str
     attn_pooling: Optional[AttentionPoolingParams] = None
-
