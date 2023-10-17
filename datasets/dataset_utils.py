@@ -417,7 +417,14 @@ def make_cifar_random_instance_train_loader(
 
 
 def make_morphem70k_random_instance_train_loader(
-    img_size: int, batch_size: int, seed: int, num_workers: int, root_dir: str, file_name: str
+    img_size: int,
+    batch_size: int,
+    seed: int,
+    num_workers: int,
+    root_dir: str,
+    file_name: str,
+    tps_prob: float,
+    ssl_flag: bool,
 ) -> DataLoader:
     csv_path = os.path.join(root_dir, file_name)
     dataset = "morphem70k"

@@ -2,7 +2,7 @@ batch_strategy: random_instance
 resume_train: False
 resume_model: ~  # model_5.pt  # used when `resume_train` is True
 use_amp: False   #  mixed precision training
-checkpoints: ../STORE/adaptive_interface/checkpoints
+checkpoints: checkpoints
 save_model: False # save model after each epoch to checkpoints
 clip_grad_norm: ~   # or ~ to NOT use
 batch_size: 128 # batch_size vs. num_classes?
