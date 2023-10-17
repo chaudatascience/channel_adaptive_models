@@ -19,3 +19,4 @@ timm==0.8.3.dev0
 torch==2.0.0
 torchvision==0.15.1
 tqdm==4.65.0
+wandb==0.15.3

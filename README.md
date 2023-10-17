@@ -49,8 +49,9 @@ Parameters in the command lines will override the ones in the config file.
 Here is an example to submit a job to train a SliceParam model:
 
 ```
-python main.py -m -cp configs/morphem70k -cn morphem70k_cfg model=sliceparam tag=slice ++optimizer.params.lr=0.00001 ++model.first_layer=pretrained_pad_dups ++model.learnable_temp=True ++model.temperature=0.07
+python main.py -m -cp configs/morphem70k -cn morphem70k_cfg model=sliceparam tag=slice ++optimizer.params.lr=0.0001 ++model.learnable_temp=True ++model.temperature=0.15 ++model.first_layer=pretrained_pad_dups ++model.slice_class_emb=True ++train.seed=725375
 ```
+
 To reproduce the results, please refer to [`train_scripts.sh`](https://github.com/chaudatascience/channel_adaptive_models/blob/main/train_scripts.sh).
 
 - **Add Wandb key**: If you would like to use Wandb to keep track of experiments, add your Wandb key to `.env` file:
@@ -69,7 +70,7 @@ Configs for the checkpoints are stored in [`checkpoint_configs`](https://github.
 A quick example to use the checkpoints for evaluation is provided in [evaluate.ipynb](https://github.com/chaudatascience/channel_adaptive_models/blob/main/evaluate.ipynb)
 
 
----
+
 If you find our paper useful, please consider citing it as:
 
 ```
