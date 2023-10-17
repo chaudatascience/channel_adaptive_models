@@ -5,9 +5,9 @@ import torch
 from torch import nn, Tensor
 import torch.nn.functional as F
 
+from models.hypernet import HyperNetwork
 from config import Model
 from helper_classes.feature_pooling import FeaturePooling
-from models.hypernetwork_resnet import HyperNetwork
 
 
 # model here: https://github.com/huggingface/pytorch-image-models/blob/b3e816d6d71ec132b39c603d68b619ae2870fd0a/timm/models/convnext.py#L410
@@ -78,16 +78,12 @@ class HyperConvNeXt(nn.Module):
             *[model.stages[3].blocks[i] for i in range(3)],
         )
 
-        num_proxies = (
-            config.num_classes
-        )  ## depends on the number of classes of the dataset
+        num_proxies = config.num_classes  ## depends on the number of classes of the dataset
         self.dim = 768 if self.cfg.pooling in ["avg", "max", "avgmax"] else 7 * 7 * 768
         self.proxies = torch.nn.Parameter((torch.randn(num_proxies, self.dim) / 8))
         init_temperature = config.temperature  # scale = sqrt(1/T)
         if self.cfg.learnable_temp:
-            self.logit_scale = nn.Parameter(
-                torch.ones([]) * np.log(1 / init_temperature)
-            )
+            self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / init_temperature))
         else:
             self.scale = np.sqrt(1.0 / init_temperature)
 

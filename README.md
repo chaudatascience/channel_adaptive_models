@@ -1,14 +1,4 @@
-A Pytorch implementation for channel-adaptive models in our paper. If you find our paper useful, please consider citing it as:
-
-```
-@InProceedings{ChenCHAMMI2023,
-    author={Zitong Chen and Chau Pham and Siqi Wang and Michael Doron and Nikita Moshkov and Bryan A. Plummer and Juan C Caicedo},
-    title={CHAMMI: A benchmark for channel-adaptive models in microscopy imaging},
-    booktitle={Advances in Neural Information Processing Systems (NeurIPS) Track on Datasets and Benchmarks},
-    year={2023}}
-```
-
-This code was tested using Pytorch 2.0 and Python 3.10
+A Pytorch implementation for channel-adaptive models in our paper. This code was tested using Pytorch 2.0 and Python 3.10
 
 
 # Setup
@@ -21,10 +11,6 @@ https://github.com/broadinstitute/MorphEm
 2/ Install required packages:
 
 `pip install -r requirements.txt`
-
-or, if you are using conda, you can create a new environment by:
-
-`conda env create -f environment.yml`
 
 
 # Dataset
@@ -82,3 +68,14 @@ Configs for the checkpoints are stored in [`checkpoint_configs`](https://github.
 
 A quick example to use the checkpoints for evaluation is provided in [evaluate.ipynb](https://github.com/chaudatascience/channel_adaptive_models/blob/main/evaluate.ipynb)
 
+
+---
+If you find our paper useful, please consider citing it as:
+
+```
+@InProceedings{ChenCHAMMI2023,
+    author={Zitong Chen and Chau Pham and Siqi Wang and Michael Doron and Nikita Moshkov and Bryan A. Plummer and Juan C Caicedo},
+    title={CHAMMI: A benchmark for channel-adaptive models in microscopy imaging},
+    booktitle={Advances in Neural Information Processing Systems (NeurIPS) Track on Datasets and Benchmarks},
+    year={2023}}
+```

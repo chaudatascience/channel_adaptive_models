@@ -5,11 +5,11 @@ import torch
 from torch import nn, Tensor
 import torch.nn.functional as F
 
+from models.hypernet import HyperNetwork
 from config import Model
 from helper_classes.feature_pooling import FeaturePooling
-from models.hypernetwork_resnet import HyperNetwork
-
 from models.model_utils import freeze_, get_module
+
 # model here: https://github.com/huggingface/pytorch-image-models/blob/b3e816d6d71ec132b39c603d68b619ae2870fd0a/timm/models/convnext.py#L410
 # lr=4.0e-3 (mentioned in  A ConvNet for the 2020s paper)
 
@@ -29,7 +29,7 @@ def get_mapper():
 
 
 class HyperConvNeXtMIRO(nn.Module):
-    def __init__(self, config: Model, freeze: str=None):
+    def __init__(self, config: Model, freeze: str = None):
         # pretrained_model_name "convnext_tiny.fb_in22k"
         ## forward pass: https://github.com/huggingface/pytorch-image-models/blob/b3e816d6d71ec132b39c603d68b619ae2870fd0a/timm/models/convnext.py#L420
 
@@ -87,16 +87,12 @@ class HyperConvNeXtMIRO(nn.Module):
         ]
         self.build_feature_hooks(self.feat_layers)
 
-        num_proxies = (
-            config.num_classes
-        )  ## depends on the number of classes of the dataset
+        num_proxies = config.num_classes  ## depends on the number of classes of the dataset
         self.dim = 768 if self.cfg.pooling in ["avg", "max", "avgmax"] else 7 * 7 * 768
         self.proxies = torch.nn.Parameter((torch.randn(num_proxies, self.dim) / 8))
         init_temperature = config.temperature  # scale = sqrt(1/T)
         if self.cfg.learnable_temp:
-            self.logit_scale = nn.Parameter(
-                torch.ones([]) * np.log(1 / init_temperature)
-            )
+            self.logit_scale = nn.Parameter(torch.ones([]) * np.log(1 / init_temperature))
         else:
             self.scale = np.sqrt(1.0 / init_temperature)
 
@@ -180,8 +176,7 @@ class HyperConvNeXtMIRO(nn.Module):
             bound = 1 / np.sqrt(fan_in)
             nn.init.uniform_(model.stem[0].bias, -bound, bound)
 
-    def forward(self, x: torch.Tensor, chunk: str,
-                 return_features: bool = True) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, chunk: str, return_features: bool = True) -> torch.Tensor:
         self.clear_features()
 
         conv1_params = self.generate_params_first_layer(chunk)
@@ -218,5 +213,5 @@ class HyperConvNeXtMIRO(nn.Module):
             return x
 
 
-def hyperconvnext_miro(cfg: Model, freeze: str=None) -> HyperConvNeXtMIRO:
+def hyperconvnext_miro(cfg: Model, freeze: str = None) -> HyperConvNeXtMIRO:
     return HyperConvNeXtMIRO(config=cfg, freeze=freeze)
