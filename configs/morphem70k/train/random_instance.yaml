@@ -19,3 +19,6 @@ swa_start: 5
 miro: False
 miro_lr_mult: 10.0
 miro_ld: 0.01
+tps_prob: 0.0   ## TPS transformation. 0 means disable. To use, set a value in (0, 1]
+ssl: False  ## self-supervised loss
+ssl_lambda: 0.0  ## lambda to balance the self-supervised loss with the main loss

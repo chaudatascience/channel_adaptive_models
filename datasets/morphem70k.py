@@ -22,6 +22,7 @@ class SingleCellDataset(Dataset):
         chunk: str,
         root_dir: str,
         is_train: bool,
+        ssl_flag: bool,
         target_labels: str = "label",
         transform: Callable | Dict[str, Callable] | None = None,
     ):
@@ -58,6 +59,7 @@ class SingleCellDataset(Dataset):
         self.root_dir = root_dir
         self.transform = transform
         self.target_labels = target_labels
+        self.ssl_flag = ssl_flag
 
         ## classes on training set:
 

@@ -6,6 +6,7 @@ from omegaconf import OmegaConf
 
 from config import MyConfig
 from trainer import Trainer
+from ssltrainer import SSLTrainer
 
 cs = ConfigStore.instance()
 cs.store(name="my_config", node=MyConfig)
@@ -16,7 +17,10 @@ def main(cfg: MyConfig) -> None:
     # print(OmegaConf.to_yaml(cfg))
     # print(OmegaConf.to_container(cfg))
 
-    trainer = Trainer(cfg)
+    if cfg.train.ssl:
+        trainer = SSLTrainer(cfg)
+    else:
+        trainer = Trainer(cfg)
     trainer.train()
 
 
