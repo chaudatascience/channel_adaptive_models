@@ -29,20 +29,15 @@ from helper_classes.datasplit import DataSplit
 from models import model_utils
 from models.depthwise_convnext import DepthwiseConvNeXt
 from models.hypernet_convnext import HyperConvNeXt
-from models.hypernetwork_resnet import HyperNetworkResNet
 from models.loss_fn import proxy_loss
 from models.shared_convnext import SharedConvNeXt
-from models.shared_resnet import SharedResNet
 from lr_schedulers import create_my_scheduler
 from models.slice_param_convnext import SliceParamConvNeXt
-from models.slice_param_resnet import SliceParamResNet
-from models.depthwise_resnet import DepthWiseResNet
 from models.depthwise_convnext_miro import DepthwiseConvNeXtMIRO
 from models.template_mixing_convnext import TemplateMixingConvNeXt
 from models.template_convnextv2 import TemplateMixingConvNeXtV2
 from models.convnext_shared_miro import ConvNeXtSharedMIRO
 from models.hypernet_convnext_miro import HyperConvNeXtMIRO
-from models.template_mixing_first_layer_resnet import TemplateMixingFirstLayerResNet
 from models.slice_param_convnext_miro import SliceParamConvNeXtMIRO
 from models.template_convnextv2_miro import TemplateMixingConvNeXtV2MIRO
 
@@ -71,9 +66,7 @@ class Trainer:
 
         self.shuffle_all = "SHUFFLE_ALL"
 
-        self.in_dim = self.cfg.model.in_dim = utils.default(
-            self.cfg.model.in_dim, max_num_channels
-        )
+        self.in_dim = self.cfg.model.in_dim = utils.default(self.cfg.model.in_dim, max_num_channels)
         self.data_channels = {}
         self.data_classes_train = (
             None  ## classes of dataset, e.g., ['airplane', 'bird', ...] for CIFAR10
@@ -82,16 +75,12 @@ class Trainer:
         job_id = utils.default(self.cfg.logging.scc_jobid, None)
 
         self.jobid_seed = (
-            f"jobid{job_id}_seed{self.seed}"
-            if job_id is not None
-            else f"seed{self.seed}"
+            f"jobid{job_id}_seed{self.seed}" if job_id is not None else f"seed{self.seed}"
         )
         _project_name = self.cfg.logging.wandb.project_name
         self.project_name = utils.default(_project_name, f"morphemv2_v8")
 
-        self.all_chunks = [
-            list(chunk.keys())[0] for chunk in self.cfg.data_chunk.chunks
-        ]
+        self.all_chunks = [list(chunk.keys())[0] for chunk in self.cfg.data_chunk.chunks]
         self.cfg.eval.meta_csv_file = "enriched_meta.csv"
 
         ## auto set eval batch size to maximize GPU memory usage
@@ -139,9 +128,7 @@ class Trainer:
         self.eval_metric_all_chunks_best = "{split}_BEST_ALL_CHUNKS/{metric}_obs"
         self.eval_metric_names = ["acc", "f1"]
 
-        self.train_loss_fn = (
-            "ce" if self.cfg.dataset.name in ["cifar10", "cifar100"] else "proxy"
-        )
+        self.train_loss_fn = "ce" if self.cfg.dataset.name in ["cifar10", "cifar100"] else "proxy"
         self.train_metric = "{split}_{chunk_name}/loss"
         self.train_metric_all_chunks = "{split}_ALL_CHUNKS/loss"
 
@@ -156,9 +143,7 @@ class Trainer:
         self._build_dataset()
 
         if self.cfg.train.miro:  ## build MIRO, should be done before building model
-            self.cfg.model.num_classes = len(
-                self.data_classes_train
-            )  ## duplicate, but ok for now
+            self.cfg.model.num_classes = len(self.data_classes_train)  ## duplicate, but ok for now
             if (
                 hasattr(self.cfg.model, "pooling_channel_type")
                 and self.cfg.model.pooling_channel_type == ChannelPoolingType.ATTENTION
@@ -176,9 +161,9 @@ class Trainer:
                     self.cfg.model, freeze="all"
                 ).to(self.device)
 
-                self.featurizer = getattr(models, self.cfg.model.name)(
-                    self.cfg.model
-                ).to(self.device)
+                self.featurizer = getattr(models, self.cfg.model.name)(self.cfg.model).to(
+                    self.device
+                )
 
             chunk_name = self.cfg.dataset.name
             dims = {
@@ -196,12 +181,12 @@ class Trainer:
                     self.cfg.dataset.img_size,
                 ),
             )
-            self.mean_encoders = nn.ModuleList(
-                [MeanEncoder(shape) for shape in shapes]
-            ).to(self.device)
-            self.var_encoders = nn.ModuleList(
-                [VarianceEncoder(shape) for shape in shapes]
-            ).to(self.device)
+            self.mean_encoders = nn.ModuleList([MeanEncoder(shape) for shape in shapes]).to(
+                self.device
+            )
+            self.var_encoders = nn.ModuleList([VarianceEncoder(shape) for shape in shapes]).to(
+                self.device
+            )
         self._build_model()
         self._build_log()
 
@@ -247,11 +232,6 @@ class Trainer:
         if isinstance(
             self.model,
             (
-                SharedResNet,
-                SliceParamResNet,
-                DepthWiseResNet,
-                TemplateMixingFirstLayerResNet,
-                HyperNetworkResNet,
                 SharedConvNeXt,
                 SliceParamConvNeXt,
                 TemplateMixingConvNeXt,
@@ -302,20 +282,13 @@ class Trainer:
             elif self.cfg.dataset.name in ["Allen", "HPA", "CP", "morphem70k"]:
                 self.eval_morphem70k(epoch=0)  ## evaluate off the shelf model
             else:
-                raise NotImplementedError(
-                    f"dataset {self.cfg.dataset.name} not supported yet"
-                )
+                raise NotImplementedError(f"dataset {self.cfg.dataset.name} not supported yet")
 
         num_epochs = self.cfg.train.num_epochs + self.start_epoch - 1
         for epoch in range(self.start_epoch, num_epochs + 1):
             ### only train the adaptive interface for the first few epochs
-            if (
-                epoch == self.start_epoch
-                and self.cfg.train.adaptive_interface_epochs > 0
-            ):
-                model_utils.toggle_grad(
-                    self.model.feature_extractor, requires_grad=False
-                )
+            if epoch == self.start_epoch and self.cfg.train.adaptive_interface_epochs > 0:
+                model_utils.toggle_grad(self.model.feature_extractor, requires_grad=False)
                 self.logger.info(
                     f"freeze the feature extractor for the first {self.cfg.train.adaptive_interface_epochs} epochs"
                 )
@@ -332,9 +305,7 @@ class Trainer:
 
                 ## build scheduler
                 ## set lr of adaptive interface to lr of the whole model
-                self.optimizer.param_groups[0]["lr"] = self.optimizer.param_groups[1][
-                    "lr"
-                ]
+                self.optimizer.param_groups[0]["lr"] = self.optimizer.param_groups[1]["lr"]
 
                 self.scheduler = self._build_scheduler()
                 self.logger.info(
@@ -350,8 +321,7 @@ class Trainer:
 
             ## Scheduler per epoch
             if self.scheduler and not (
-                (self.cfg.train.swa or self.cfg.train.swad)
-                and epoch > self.cfg.train.swa_start
+                (self.cfg.train.swa or self.cfg.train.swad) and epoch > self.cfg.train.swa_start
             ):
                 self.scheduler.step(epoch)
 
@@ -414,18 +384,14 @@ class Trainer:
 
         for batch in loader:
             x, y = utils.move_to_cuda(batch, self.device)
-            x = get_channel(
-                self.cfg.dataset.name, self.data_channels[chunk_name], x, self.device
-            )
+            x = get_channel(self.cfg.dataset.name, self.data_channels[chunk_name], x, self.device)
             output = self._forward_model(x, chunk_name)
             if self.cfg.dataset.name in ["cifar10", "cifar100"]:
                 loss = torch.nn.CrossEntropyLoss()(output, y)
                 accuracy = self.eval_accuracy(output, y)
 
                 loss_key = self.train_metric.format(split=split, chunk_name=chunk_name)
-                acc_key = self.eval_metric.format(
-                    split=split, chunk_name=chunk_name, metric="acc"
-                )
+                acc_key = self.eval_metric.format(split=split, chunk_name=chunk_name, metric="acc")
                 loss_dict = {loss_key: loss.item(), acc_key: accuracy}
                 for k, v in loss_dict.items():
                     metrics_logger[k].update(v, len(y))
@@ -442,9 +408,7 @@ class Trainer:
     @torch.no_grad()
     def eval_morphem70k(self, epoch: int):
         def log_res(eval_cfg, knn_metric):
-            call_umap = eval_cfg["umap"] and (
-                epoch == 0 or epoch == self.cfg.train.num_epochs
-            )
+            call_umap = eval_cfg["umap"] and (epoch == 0 or epoch == self.cfg.train.num_epochs)
             if knn_metric in ["l2", "cosine"]:
                 full_res = run_benchmark(
                     eval_cfg["root_dir"],
@@ -477,12 +441,8 @@ class Trainer:
                 metrics_logger = {
                     **acc,
                     **f1,
-                    f"{classifier}/{knn_metric}/score_acc/": np.mean(
-                        list(acc.values())[1:]
-                    ),
-                    f"{classifier}/{knn_metric}/score_f1/": np.mean(
-                        list(f1.values())[1:]
-                    ),
+                    f"{classifier}/{knn_metric}/score_acc/": np.mean(list(acc.values())[1:]),
+                    f"{classifier}/{knn_metric}/score_f1/": np.mean(list(f1.values())[1:]),
                 }
             else:
                 knn_metric = "l2"
@@ -520,14 +480,14 @@ class Trainer:
         eval_cfg = deepcopy(self.cfg.eval)
         ## make a new folder for each epoch
         scc_jobid = utils.default(self.cfg.logging.scc_jobid, "")
-        FOLDER_NAME = f'{utils.datetime_now("%Y-%b-%d")}_seed{self.cfg.train.seed}_sccjobid{scc_jobid}'
+        FOLDER_NAME = (
+            f'{utils.datetime_now("%Y-%b-%d")}_seed{self.cfg.train.seed}_sccjobid{scc_jobid}'
+        )
         eval_cfg.dest_dir = os_join(
             eval_cfg.dest_dir.format(FOLDER_NAME=FOLDER_NAME), f"epoch_{epoch}"
         )
         if epoch == 0:  ### store the first epoch features in a separate folder
-            eval_cfg.feature_dir = (
-                eval_cfg.feature_dir.format(FOLDER_NAME=FOLDER_NAME) + "_epoch0"
-            )
+            eval_cfg.feature_dir = eval_cfg.feature_dir.format(FOLDER_NAME=FOLDER_NAME) + "_epoch0"
         else:
             eval_cfg.feature_dir = eval_cfg.feature_dir.format(FOLDER_NAME=FOLDER_NAME)
 
@@ -604,9 +564,7 @@ class Trainer:
             num_updates = (epoch - 1) * self.updates_per_epoch + bid
 
             ## a batch consists of images from all chunks
-            loss_dict = self.train_one_batch(
-                batch, num_updates=num_updates, epoch=epoch
-            )
+            loss_dict = self.train_one_batch(batch, num_updates=num_updates, epoch=epoch)
 
             for k, v in loss_dict.items():
                 loss_meter[k].update(v)
@@ -621,14 +579,8 @@ class Trainer:
                 break
 
         if bid % verbose != 0:
-            self._update_batch_log(
-                epoch=epoch, bid=bid, lr=self.current_lr, loss_meter=loss_meter
-            )
-        if (
-            self.cfg.train.swa
-            and not self.cfg.train.swad
-            and epoch > self.cfg.train.swa_start
-        ):
+            self._update_batch_log(epoch=epoch, bid=bid, lr=self.current_lr, loss_meter=loss_meter)
+        if self.cfg.train.swa and not self.cfg.train.swad and epoch > self.cfg.train.swa_start:
             self.swa_model.update_parameters(self.model)
             self.swa_scheduler.step()
         # utils.gpu_mem_report()
@@ -691,9 +643,7 @@ class Trainer:
                     else:
                         loss = proxy_loss(self.model.proxies, output, y, scale)
                 else:
-                    raise NotImplementedError(
-                        f"dataset {self.cfg.dataset.name} not implemented"
-                    )
+                    raise NotImplementedError(f"dataset {self.cfg.dataset.name} not implemented")
 
             ## scale loss then call backward to have scaled grads.
             self.scaler.scale(loss).backward()
@@ -702,9 +652,7 @@ class Trainer:
         ## after looping over all chunks, we call optimizer.step() once
         if exists(self.cfg.train.clip_grad_norm):
             self.scaler.unscale_(self.optimizer)  # unscale grads of optimizer
-            torch.nn.utils.clip_grad_norm_(
-                self.model.parameters(), self.cfg.train.clip_grad_norm
-            )
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.cfg.train.clip_grad_norm)
 
         ## unscale grads of `optimizer` if it hasn't, then call optimizer.step() if grads
         # don't contain NA(s), inf(s) (o.w. skip calling)
@@ -715,9 +663,7 @@ class Trainer:
         self.scaler.update()
 
         ## Scheduler per batch
-        if self.scheduler and not (
-            self.cfg.train.swad and epoch > self.cfg.train.swa_start
-        ):
+        if self.scheduler and not (self.cfg.train.swad and epoch > self.cfg.train.swa_start):
             self.scheduler.step_update(num_updates=num_updates)
 
         loss_dict = {
@@ -782,9 +728,7 @@ class Trainer:
             res_list.append(logger.avg)
         return np.mean(np.array(res_list))
 
-    def _update_best_res_all_chunks_cifar(
-        self, eval_loggers: Dict[DataSplit, Dict], epoch: int
-    ):
+    def _update_best_res_all_chunks_cifar(self, eval_loggers: Dict[DataSplit, Dict], epoch: int):
         """
         evaluate on all chunks, i.e., self.all_chunks (NOT only training_chunks)
         Used during training to update the best results so far
@@ -808,12 +752,8 @@ class Trainer:
                 split=split,
             )
 
-            acc_obs_key = self.eval_metric_all_chunks_obs.format(
-                split=split, metric="acc"
-            )
-            acc_chunk_key = self.eval_metric_all_chunks_avg_chunk.format(
-                split=split, metric="acc"
-            )
+            acc_obs_key = self.eval_metric_all_chunks_obs.format(split=split, metric="acc")
+            acc_chunk_key = self.eval_metric_all_chunks_avg_chunk.format(split=split, metric="acc")
 
             cur = {
                 acc_obs_key: cur_acc_obs,
@@ -838,9 +778,7 @@ class Trainer:
             if cur[acc_obs_key] > best_acc_obs:
                 self.best_res_all_chunks[split].avg_acc_obs = cur[acc_obs_key]
                 self.best_res_all_chunks[split].avg_acc_chunk = cur[acc_chunk_key]
-                self.best_res_all_chunks[split].avg_loss = (
-                    cur[loss_key] if loss_key else None
-                )
+                self.best_res_all_chunks[split].avg_loss = cur[loss_key] if loss_key else None
                 self.best_res_all_chunks[split].avg_f1_chunk = (
                     cur[f1_chunk_key] if f1_chunk_key else None
                 )
@@ -894,9 +832,7 @@ class Trainer:
             root_dir=root_dir,
             file_name=file_name,
         )
-        self.train_loaders[self.shuffle_all] = utils.default(
-            train_loader_all, train_loader
-        )
+        self.train_loaders[self.shuffle_all] = utils.default(train_loader_all, train_loader)
 
         self.num_loaders = len(data_chunks)
         self.data_classes_train, self.data_classes_test = get_classes(
@@ -935,15 +871,11 @@ class Trainer:
         self.forward_mode = (
             self._get_forward_mode()
         )  # determine the type of self.model before compiling
-        if torch.__version__ >= "2.0.0" and self.cfg.train.get(
-            "compile_pytorch", False
-        ):
+        if torch.__version__ >= "2.0.0" and self.cfg.train.get("compile_pytorch", False):
             self.model = torch.compile(self.model, mode="reduce-overhead")
 
         if self.cfg.hardware.multi_gpus == "DataParallel":
-            print(
-                "os.environ['CUDA_VISIBLE_DEVICES']", os.getenv("CUDA_VISIBLE_DEVICES")
-            )
+            print("os.environ['CUDA_VISIBLE_DEVICES']", os.getenv("CUDA_VISIBLE_DEVICES"))
             print(f"using {torch.cuda.device_count()} GPUs")
             self.model = nn.DataParallel(self.model)
         elif self.cfg.hardware.multi_gpus == "DistributedDataParallel":
@@ -1017,9 +949,7 @@ class Trainer:
             for k in sched_cfg:
                 if k in ["t_initial", "warmup_t", "decay_t"]:
                     if isinstance(sched_cfg[k], ListConfig):
-                        sched_cfg[k] = (
-                            np.array(sched_cfg[k]) * self.updates_per_epoch
-                        ).tolist()
+                        sched_cfg[k] = (np.array(sched_cfg[k]) * self.updates_per_epoch).tolist()
                     else:
                         sched_cfg[k] = sched_cfg[k] * self.updates_per_epoch
         scheduler = create_my_scheduler(self.optimizer, sched_name, sched_cfg)
@@ -1041,9 +971,7 @@ class Trainer:
             "config": self.cfg,
             "optimizer_params": self.optimizer.state_dict(),
             "model_params": self.model.state_dict(),
-            "scheduler_params": self.scheduler.state_dict()
-            if exists(self.scheduler)
-            else None,
+            "scheduler_params": self.scheduler.state_dict() if exists(self.scheduler) else None,
             "scaler_params": self.scaler.state_dict(),
             "datetime": utils.datetime_now(),
         }
@@ -1061,9 +989,7 @@ class Trainer:
         self.scaler.load_state_dict(state_dict["scaler_params"])
 
         epoch = int(state_dict.get("epoch", 0))
-        self.logger.info(
-            "loaded model from {path}, epoch {epoch}".format(path=path, epoch=epoch)
-        )
+        self.logger.info("loaded model from {path}, epoch {epoch}".format(path=path, epoch=epoch))
 
         return epoch
 
@@ -1077,14 +1003,10 @@ class Trainer:
 
         ## Log the best model
         if self.cfg.train.swa or self.cfg.train.swad:
-            torch.optim.swa_utils.update_bn(
-                self.train_loaders[self.shuffle_all], self.swa_model
-            )
+            torch.optim.swa_utils.update_bn(self.train_loaders[self.shuffle_all], self.swa_model)
             self.model = self.swa_model
 
-        self.logger.info(
-            best_res.to_dict(), use_wandb=False, sep="| ", padding_space=True
-        )
+        self.logger.info(best_res.to_dict(), use_wandb=False, sep="| ", padding_space=True)
         h = w = int(self.cfg.dataset.img_size)
         best_model_path = self.best_model_path if self.cfg.train.save_model else ""
         self.logger.finish(
