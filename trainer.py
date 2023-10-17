@@ -804,6 +804,7 @@ class Trainer:
         root_dir = data_cfg.root_dir
         file_name = data_cfg.file_name
         tps_prob = self.cfg.train.tps_prob
+        ssl_flag = self.cfg.train.ssl
 
         for chunk in data_chunks:
             chunk_name = list(chunk.keys())[0]
@@ -818,6 +819,7 @@ class Trainer:
                 root_dir=root_dir,
                 file_name=file_name,
                 tps_prob=tps_prob,
+                ssl_flag=ssl_flag,
             )
 
             self.train_loaders[chunk_name] = train_loader
@@ -834,6 +836,7 @@ class Trainer:
             root_dir=root_dir,
             file_name=file_name,
             tps_prob=tps_prob,
+            ssl_flag=ssl_flag,
         )
         self.train_loaders[self.shuffle_all] = utils.default(train_loader_all, train_loader)
 
