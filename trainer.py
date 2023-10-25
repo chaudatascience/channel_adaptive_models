@@ -268,18 +268,7 @@ class Trainer:
         epoch_timer = utils.Time1Event()
         if not self.cfg.train.debug:
             self.logger.info("Before training, evaluate:")
-            if self.cfg.dataset.name in ["cifar10", "cifar100"]:
-                eval_loggers = {
-                    DataSplit.TRAIN: {},
-                    DataSplit.VAL: {},
-                    DataSplit.TEST: {},
-                }
-                for chunk_name in self.all_chunks:
-                    for split in DataSplit.get_all_splits():
-                        eval_res = self.eval_cifar(split, chunk_name, epoch=0)
-                        if eval_res:  ## avoid the case when VAL is not available
-                            eval_loggers[split].update(eval_res)
-            elif self.cfg.dataset.name in ["Allen", "HPA", "CP", "morphem70k"]:
+            if self.cfg.dataset.name in ["Allen", "HPA", "CP", "morphem70k"]:
                 self.eval_morphem70k(epoch=0)  ## evaluate off the shelf model
             else:
                 raise NotImplementedError(f"dataset {self.cfg.dataset.name} not supported yet")
@@ -329,17 +318,8 @@ class Trainer:
             self.train_one_epoch(epoch, self.shuffle_all)
 
             ## Evaluate on ALL chunks
-            if self.cfg.dataset.name in ["cifar10", "cifar100"]:
-                for chunk_name in self.all_chunks:
-                    for split in DataSplit.get_all_splits():
-                        eval_res = self.eval_cifar(split, chunk_name, epoch=epoch)
-                        if eval_res:  ## avoid the case when VAL is not available
-                            eval_loggers[split].update(eval_res)
-                ## update best results for CIFAR
-                self._update_best_res_all_chunks_cifar(eval_loggers, epoch)
-            else:
-                if not self.cfg.train.debug:  ## skip expensive evaluation on debug mode
-                    self.eval_morphem70k(epoch=epoch)
+            if not self.cfg.train.debug:  ## skip expensive evaluation on debug mode
+                self.eval_morphem70k(epoch=epoch)
 
             ## save cur model
             if self.cfg.train.save_model:
@@ -358,52 +338,6 @@ class Trainer:
             self.logger.info("=" * 40)
 
         self._finish_training()
-
-    @torch.no_grad()
-    def eval_cifar(self, split: DataSplit, chunk_name: str, epoch: int):
-        """
-        :param split: either TRAIN, VAL, TEST. used to determine which part of the dataset to evaluate
-        :param chunk_name: e.g., "red", "red_green" for CIFAR
-        :param epoch: current epoch
-        :return:
-        """
-        if split == DataSplit.TRAIN:
-            loader = self.train_loaders[chunk_name]
-        elif split == DataSplit.VAL:
-            loader = self.val_loaders[chunk_name]
-        elif split == DataSplit.TEST:
-            loader = self.test_loaders[chunk_name]
-        else:
-            raise ValueError(f"{split} is not valid!")
-
-        if loader is None:
-            return None
-
-        self.model.eval()
-        metrics_logger = collections.defaultdict(lambda: AverageMeter())
-
-        for batch in loader:
-            x, y = utils.move_to_cuda(batch, self.device)
-            x = get_channel(self.cfg.dataset.name, self.data_channels[chunk_name], x, self.device)
-            output = self._forward_model(x, chunk_name)
-            if self.cfg.dataset.name in ["cifar10", "cifar100"]:
-                loss = torch.nn.CrossEntropyLoss()(output, y)
-                accuracy = self.eval_accuracy(output, y)
-
-                loss_key = self.train_metric.format(split=split, chunk_name=chunk_name)
-                acc_key = self.eval_metric.format(split=split, chunk_name=chunk_name, metric="acc")
-                loss_dict = {loss_key: loss.item(), acc_key: accuracy}
-                for k, v in loss_dict.items():
-                    metrics_logger[k].update(v, len(y))
-            else:
-                raise NotImplementedError()
-
-        self.logger.info(
-            {k: v.avg for k, v in metrics_logger.items()}, sep="| ", padding_space=True
-        )
-        if self.cfg.train.debug:
-            self.logger.info("----------- DEBUG MODE!!! -----------")
-        return metrics_logger
 
     @torch.no_grad()
     def eval_morphem70k(self, epoch: int):
@@ -699,97 +633,6 @@ class Trainer:
         else:
             self.logger.info(msg_dict)
         return None
-
-    def _get_avg_metric_all_chunks_by_obs(
-        self, key_base: str, metric: str, logger_dict: Dict, split: DataSplit
-    ):
-        """
-        get avg on ALL CHUNKS, not only on training_chunks,
-        as training_chunks can be a subset of self.chunk_names
-        :param key_base:
-        :return:
-        """
-        total_obs, total_corrects = 0, 0
-        for chunk_name in self.all_chunks:
-            key = key_base.format(split=split, chunk_name=chunk_name, metric=metric)
-            logger = logger_dict[key]
-            num_obs, num_corrects = logger.count, logger.sum
-            total_obs += num_obs
-            total_corrects += num_corrects
-        return total_corrects / total_obs
-
-    def _get_avg_metric_all_chunks_by_avg_chunk(
-        self, key_base: str, metric: str, logger_dict: Dict, split: DataSplit
-    ):
-        res_list = []
-        for chunk_name in self.all_chunks:
-            key = key_base.format(split=split, chunk_name=chunk_name, metric=metric)
-            logger = logger_dict[key]
-            res_list.append(logger.avg)
-        return np.mean(np.array(res_list))
-
-    def _update_best_res_all_chunks_cifar(self, eval_loggers: Dict[DataSplit, Dict], epoch: int):
-        """
-        evaluate on all chunks, i.e., self.all_chunks (NOT only training_chunks)
-        Used during training to update the best results so far
-        :return:
-        """
-        for split in DataSplit.get_all_splits():
-            if not eval_loggers[split]:
-                print("skipped", split)
-                continue
-            logger_dict = eval_loggers[split]
-            cur_acc_obs = self._get_avg_metric_all_chunks_by_obs(
-                key_base=self.eval_metric,
-                metric="acc",
-                logger_dict=logger_dict,
-                split=split,
-            )
-            cur_acc_chunk = self._get_avg_metric_all_chunks_by_avg_chunk(
-                key_base=self.eval_metric,
-                metric="acc",
-                logger_dict=logger_dict,
-                split=split,
-            )
-
-            acc_obs_key = self.eval_metric_all_chunks_obs.format(split=split, metric="acc")
-            acc_chunk_key = self.eval_metric_all_chunks_avg_chunk.format(split=split, metric="acc")
-
-            cur = {
-                acc_obs_key: cur_acc_obs,
-                acc_chunk_key: cur_acc_chunk,
-            }
-            loss_key, f1_chunk_key = None, None
-            cur_loss = self._get_avg_metric_all_chunks_by_obs(
-                key_base=self.train_metric, logger_dict=logger_dict, split=split
-            )
-            loss_key = self.train_metric_all_chunks.format(split=split)
-            cur[loss_key] = cur_loss
-
-            self.logger.info(
-                {k: v for k, v in cur.items()},
-                sep="| ",
-                padding_space=True,
-                pref_msg=f"epoch = {epoch}; ALL CHUNKS: ",
-            )
-
-            ## Update best result
-            best_acc_obs = self.best_res_all_chunks[split].avg_acc_obs
-            if cur[acc_obs_key] > best_acc_obs:
-                self.best_res_all_chunks[split].avg_acc_obs = cur[acc_obs_key]
-                self.best_res_all_chunks[split].avg_acc_chunk = cur[acc_chunk_key]
-                self.best_res_all_chunks[split].avg_loss = cur[loss_key] if loss_key else None
-                self.best_res_all_chunks[split].avg_f1_chunk = (
-                    cur[f1_chunk_key] if f1_chunk_key else None
-                )
-                self.best_res_all_chunks[split].epoch = epoch
-
-                msg = f"updated best results, best avg acc_obs={cur[acc_obs_key]}; best epoch {epoch}.\n"
-                self.logger.update_best_result(
-                    msg=msg,
-                    metric=f'{self.eval_metric_all_chunks_best.format(split=split, metric="acc")}',
-                    val=cur[acc_obs_key],
-                )
 
     def _build_dataset(self):
         data_cfg = self.cfg.dataset
