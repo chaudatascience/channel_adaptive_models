@@ -1,6 +1,17 @@
-A Pytorch implementation for channel-adaptive models in our paper. This code was tested using Pytorch 2.0 and Python 3.10
+A Pytorch implementation for channel-adaptive models in our [paper](https://arxiv.org/pdf/2310.19224.pdf). This code was tested using Pytorch 2.0 and Python 3.10.
 
-![alt text](https://raw.githubusercontent.com/chaudatascience/channel_adaptive_models/main/figs/01-adaptive-models.png)
+
+If you find our work useful, please consider citing:
+
+```
+@InProceedings{ChenCHAMMI2023,
+    author={Zitong Chen and Chau Pham and Siqi Wang and Michael Doron and Nikita Moshkov and Bryan A. Plummer and Juan C Caicedo},
+    title={CHAMMI: A benchmark for channel-adaptive models in microscopy imaging},
+    booktitle={Advances in Neural Information Processing Systems (NeurIPS) Track on Datasets and Benchmarks},
+    year={2023}}
+```
+
+
 
 
 
@@ -19,6 +30,8 @@ https://github.com/broadinstitute/MorphEm
 
 
 # Dataset
+
+![alt text](https://raw.githubusercontent.com/chaudatascience/channel_adaptive_models/main/figs/01-adaptive-models.png)
 
 CHAMMI consists of varying-channel images from three sources: WTC-11 hiPSC dataset (WTC-11, 3 channels), Human Protein Atlas (HPA, 4 channels), and Cell Painting datasets (CP, 5 channels). 
 
@@ -85,17 +98,4 @@ Our pre-trained models can be found at: https://drive.google.com/drive/folders/1
 
 Configs for the checkpoints are stored in [checkpoint_configs](https://github.com/chaudatascience/channel_adaptive_models/tree/main/checkpoint_configs) folder.
 
-A quick example to use the checkpoints for evaluation is provided in [evaluate.ipynb](https://github.com/chaudatascience/channel_adaptive_models/blob/main/evaluate.ipynb)
-
-
----
-
-If you find our work useful, please consider citing it as:
-
-```
-@InProceedings{ChenCHAMMI2023,
-    author={Zitong Chen and Chau Pham and Siqi Wang and Michael Doron and Nikita Moshkov and Bryan A. Plummer and Juan C Caicedo},
-    title={CHAMMI: A benchmark for channel-adaptive models in microscopy imaging},
-    booktitle={Advances in Neural Information Processing Systems (NeurIPS) Track on Datasets and Benchmarks},
-    year={2023}}
-```
+A quick example of using the checkpoints for evaluation is provided in [evaluate.ipynb](https://github.com/chaudatascience/channel_adaptive_models/blob/main/evaluate.ipynb)
