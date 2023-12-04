@@ -14,12 +14,10 @@ def compute_mean_std_morphem70k(chunk, root_dir):
     )
 
     loader = DataLoader(dataset, batch_size=10, shuffle=False, drop_last=False)
-    img_shape_set = defaultdict(lambda: 0)
     mean = 0.0
     for images, _ in loader:
         #     print(images.shape) : 10, 3, 238, 374
         batch_samples = images.size(0)
-        img_shape_set[tuple(images.shape[1:])] += 1
         images = images.view(batch_samples, images.size(1), -1)
         #     print(images.shape): 10, 3, 89012
         mean += images.mean(2).sum(0)
@@ -31,10 +29,10 @@ def compute_mean_std_morphem70k(chunk, root_dir):
         batch_samples = images.size(0)
         images = images.view(batch_samples, images.size(1), -1)
         var += ((images - mean.unsqueeze(1)) ** 2).sum([0, 2])
-        pixel_count += images.nelement()
+        pixel_count += images.nelement()/ images.size(1)
     std = torch.sqrt(var / pixel_count)
 
-    return list(mean.numpy()), list(std.numpy()), img_shape_set
+    return list(mean.numpy()), list(std.numpy())
 
 
 if __name__ == "__main__":
@@ -47,10 +45,10 @@ if __name__ == "__main__":
     for chunk in ["Allen", "CP", "HPA"]:
         start_time = time.time()
 
-        mean, std, img_shape_set = compute_mean_std_morphem70k(chunk, root_dir)
+        mean, std = compute_mean_std_morphem70k(chunk, root_dir)
         mean_std[chunk] = [mean, std]
 
-        msg = f"data={chunk}, mean={mean}, std={std},\nimg_shape_100={img_shape_set}"
+        msg = f"data={chunk}, mean={mean}, std={std}"
         with open(out_path, "a") as out:
             out.write(msg + "\n\n")
             out.write("--- %s seconds ---\n\n" % (time.time() - start_time))
