@@ -1,4 +1,4 @@
-A Pytorch implementation for channel-adaptive models in our [paper](https://arxiv.org/pdf/2310.19224.pdf). This code was tested using Pytorch 2.0 and Python 3.10.
+A Pytorch implementation for channel-adaptive models in our [paper](https://neurips.cc/virtual/2023/poster/73620). This code was tested using Pytorch 2.0 and Python 3.10.
 
 
 If you find our work useful, please consider citing:
